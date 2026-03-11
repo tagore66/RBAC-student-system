@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Student Manager</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<h2 id="welcome"></h2>
+
+<input id="name" placeholder="Name">
+<input id="age" placeholder="Age">
+<input id="course" placeholder="Course">
+
+<button id="addBtn" onclick="addStudent()">Add Student</button>
+
+<ul id="list"></ul>
+
+<button class="logout" onclick="logout()">Logout</button>
+
+</div>
+
+<script>
+
+let role = localStorage.getItem("role")
+
+document.getElementById("welcome").innerText = "Welcome " + role
+
+function loadStudents(){
+
+fetch("http://localhost:3000/students")
+.then(res=>res.json())
+.then(data=>{
+
+let list=document.getElementById("list")
+list.innerHTML=""
+
+data.forEach(s=>{
+
+let deleteButton = ""
+
+if(role=="admin"){
+deleteButton=`<button onclick="deleteStudent('${s._id}')">Delete</button>`
+}
+else{
+deleteButton=`<button disabled style="background:#ccc">Delete</button>`
+}
+
+list.innerHTML+=`
+<li>
+${s.name} (${s.course})
+${deleteButton}
+</li>
+`
+
+})
+
+})
+
+}
+
+function addStudent(){
+
+let name=document.getElementById("name").value
+let age=document.getElementById("age").value
+let course=document.getElementById("course").value
+
+fetch("http://localhost:3000/students",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({name,age,course})
+})
+.then(()=>loadStudents())
+
+}
+
+function deleteStudent(id){
+
+fetch("http://localhost:3000/students/"+id,{
+method:"DELETE"
+})
+.then(()=>loadStudents())
+
+}
+
+function logout(){
+
+localStorage.removeItem("role")
+
+window.location="login.html"
+
+}
+
+if(role=="student"){
+
+document.getElementById("addBtn").disabled=true
+document.getElementById("addBtn").style.background="#ccc"
+
+}
+
+loadStudents()
+
+</script>
+
+</body>
+</html>
