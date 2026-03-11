@@ -7,8 +7,7 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-mongoose.connect("mongodb://localhost:27017/studentdb")
-
+mongoose.connect(process.env.MONGO_URI)
 const Student = mongoose.model("Student",{
 name:String,
 age:Number,
